@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050505">
+  <title>Alien: Cell Breach</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ship-noise" aria-hidden="true"></div>
+  <main id="app" class="app-shell">
+    <header class="masthead">
+      <div>
+        <p class="system-label">USCSS // TACTICAL GRID 03</p>
+        <p class="brand">ALIEN: <span>CELL BREACH</span></p>
+      </div>
+      <div class="signal" aria-label="System status online"><span></span> SYSTEM ONLINE</div>
+    </header>
+
+    <section id="intro-screen" class="screen intro-screen" data-screen="intro">
+      <div class="intro-copy">
+        <p class="eyebrow">UNAUTHORIZED LIFEFORMS DETECTED</p>
+        <h1 tabindex="-1">Every cell is a battle.</h1>
+        <p class="lede">Secure the grid one chamber at a time. Counter the Xenomorph, claim the cell, and complete an X line before the organism forms an O line.</p>
+        <div class="button-row">
+          <button class="button button-primary" data-action="start">Begin containment</button>
+          <button class="button button-secondary" data-action="open-help">How to play</button>
+        </div>
+        <p class="fan-notice">Unofficial noncommercial classroom fan project. Inspired by the <em>Alien</em> franchise; no official artwork or assets are used.</p>
+      </div>
+      <div class="specimen-window" aria-hidden="true">
+        <div class="specimen-skull"></div>
+        <div class="scan-line"></div>
+        <span>SPECIMEN // XX121</span>
+      </div>
+    </section>
+
+    <section id="board-screen" class="screen" data-screen="board" hidden>
+      <div class="screen-heading">
+        <div>
+          <p class="eyebrow">CONTAINMENT GRID</p>
+          <h2 tabindex="-1">Choose an unsecured cell</h2>
+          <p>Each empty chamber triggers one battle. Win for X. Lose for O.</p>
+        </div>
+        <div class="compact-actions">
+          <button class="text-button" data-action="open-help">How to play</button>
+          <button class="text-button danger" data-action="restart">Restart game</button>
+        </div>
+      </div>
+
+      <div class="board-layout">
+        <div id="board" class="board" role="grid" aria-label="Alien containment board">
+          <button class="cell" role="gridcell" data-cell-index="0" aria-label="Row 1, column 1, empty"></button>
+          <button class="cell" role="gridcell" data-cell-index="1" aria-label="Row 1, column 2, empty"></button>
+          <button class="cell" role="gridcell" data-cell-index="2" aria-label="Row 1, column 3, empty"></button>
+          <button class="cell" role="gridcell" data-cell-index="3" aria-label="Row 2, column 1, empty"></button>
+          <button class="cell" role="gridcell" data-cell-index="4" aria-label="Row 2, column 2, empty"></button>
+          <button class="cell" role="gridcell" data-cell-index="5" aria-label="Row 2, column 3, empty"></button>
+          <button class="cell" role="gridcell" data-cell-index="6" aria-label="Row 3, column 1, empty"></button>
+          <button class="cell" role="gridcell" data-cell-index="7" aria-label="Row 3, column 2, empty"></button>
+          <button class="cell" role="gridcell" data-cell-index="8" aria-label="Row 3, column 3, empty"></button>
+        </div>
+        <aside class="mission-panel">
+          <p class="panel-kicker">MISSION PARAMETERS</p>
+          <dl>
+            <div><dt>Your mark</dt><dd>X // WHITE</dd></div>
+            <div><dt>Organism</dt><dd>O // RED</dd></div>
+            <div><dt>Board status</dt><dd id="board-status">9 CELLS OPEN</dd></div>
+          </dl>
+          <div class="legend-line"><span class="legend x">X</span> Secured by you</div>
+          <div class="legend-line"><span class="legend o">O</span> Breached by alien</div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="battle-screen" class="screen" data-screen="battle" hidden>
+      <div class="screen-heading battle-heading">
+        <div>
+          <p class="eyebrow">CELL <span id="pending-cell-label">01</span> // CONTACT</p>
+          <h2 tabindex="-1">Xenomorph encounter</h2>
+        </div>
+        <div class="compact-actions">
+          <button class="text-button" data-action="open-help">How to play</button>
+          <button class="text-button danger" data-action="restart">Restart game</button>
+        </div>
+      </div>
+
+      <div class="battle-layout">
+        <div class="threat-display">
+          <canvas id="battle-canvas" aria-hidden="true"></canvas>
+          <div class="threat-overlay">
+            <span>HOSTILE ORGANISM</span>
+            <strong>XX121</strong>
+          </div>
+        </div>
+
+        <div class="battle-console">
+          <div class="exchange-line">
+            <span>EXCHANGE <strong id="exchange-number">01</strong></span>
+            <span>ALIEN USES <strong id="alien-attack">LASER</strong></span>
+          </div>
+
+          <div class="health-grid">
+            <div class="health-card">
+              <div><span>YOU</span><strong id="player-health">2 OF 2</strong></div>
+              <div class="health-track"><span id="player-health-bar"></span></div>
+            </div>
+            <div class="health-card alien-health">
+              <div><span>ALIEN</span><strong id="alien-health">2 OF 2</strong></div>
+              <div class="health-track"><span id="alien-health-bar"></span></div>
+            </div>
+          </div>
+
+          <div id="response-controls" class="response-controls">
+            <p>Choose your countermeasure</p>
+            <div class="response-grid">
+              <button class="response-button" data-action="respond" data-response="shield"><span>01</span>Shield</button>
+              <button class="response-button" data-action="respond" data-response="blast"><span>02</span>Blast</button>
+              <button class="response-button" data-action="respond" data-response="dodge"><span>03</span>Dodge</button>
+            </div>
+          </div>
+
+          <div id="feedback-panel" class="feedback-panel" hidden>
+            <p class="panel-kicker">EXCHANGE RESULT</p>
+            <p id="battle-feedback"></p>
+            <button class="button button-primary" data-action="next-exchange">Next exchange</button>
+          </div>
+
+          <div id="battle-summary" class="feedback-panel" hidden>
+            <p class="panel-kicker">CELL RESOLVED</p>
+            <h3 id="battle-summary-title">Cell secured</h3>
+            <p id="battle-summary-copy"></p>
+            <button class="button button-primary" data-action="return-board">Return to board</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="result-screen" class="screen result-screen" data-screen="result" hidden>
+      <p class="eyebrow">CONTAINMENT REPORT</p>
+      <h2 id="result-heading" tabindex="-1">Grid secured</h2>
+      <p id="result-copy" class="lede"></p>
+      <div id="result-board" class="mini-board" aria-label="Final board"></div>
+      <div class="button-row">
+        <button class="button button-primary" data-action="play-again">Play again</button>
+        <button class="button button-secondary" data-action="open-help">How to play</button>
+        <button class="button button-secondary danger" data-action="restart">Restart game</button>
+      </div>
+    </section>
+
+    <section id="help-screen" class="screen help-screen" data-screen="help" hidden>
+      <div class="screen-heading">
+        <div>
+          <p class="eyebrow">CREW TRAINING FILE</p>
+          <h2 tabindex="-1">How to survive the grid</h2>
+        </div>
+        <button class="text-button" data-action="close-help">Close help</button>
+      </div>
+      <div class="help-grid">
+        <article>
+          <span class="step-number">01</span>
+          <h3>Choose a cell</h3>
+          <p>Select any empty chamber. The grid locks while you fight for that location.</p>
+        </article>
+        <article>
+          <span class="step-number">02</span>
+          <h3>Counter the alien</h3>
+          <table>
+            <thead><tr><th>Alien attack</th><th>Your counter</th></tr></thead>
+            <tbody>
+              <tr><td>Laser</td><td>Shield</td></tr>
+              <tr><td>Shield</td><td>Blast</td></tr>
+              <tr><td>Claw</td><td>Dodge</td></tr>
+            </tbody>
+          </table>
+          <p>Correct counters damage the alien. Incorrect choices damage you.</p>
+        </article>
+        <article>
+          <span class="step-number">03</span>
+          <h3>Claim the grid</h3>
+          <p>Win a battle to place X. Lose to place O. Three X marks wins; three O marks loses. A full grid without a line is a draw.</p>
+        </article>
+        <article>
+          <span class="step-number">04</span>
+          <h3>Controls and reset</h3>
+          <p>Use mouse, touch, or Tab plus Enter/Space. Closing Help preserves the game. Restart game erases the entire board and active battle.</p>
+        </article>
+      </div>
+      <div class="help-actions">
+        <button class="button button-primary" data-action="close-help">Return to mission</button>
+        <button id="help-restart" class="button button-secondary danger" data-action="restart">Restart game</button>
+      </div>
+    </section>
+
+    <p id="status-live" class="sr-only" aria-live="polite"></p>
+    <p id="result-live" class="sr-only" role="alert"></p>
+  </main>
+  <script src="game.js" defer></script>
+</body>
+</html>
